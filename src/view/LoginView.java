@@ -123,8 +123,10 @@ public class LoginView extends JFrame {
 
                 try {
                     if (formController.loginUser(username, password)) {
+                        String userId = formController.getUserIdByUsername(username);
                         JOptionPane.showMessageDialog(null, "Login Successful!");
-                        new DashboardView();
+                        DashboardView dashboardView = new DashboardView(userId);
+                        dashboardView.setVisible(true);
                         dispose();
                     } else {
                         JOptionPane.showMessageDialog(null, "Invalid username or password.");

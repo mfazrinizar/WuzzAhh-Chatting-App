@@ -16,7 +16,8 @@ CREATE TABLE friends (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     FOREIGN KEY (id_user_first) REFERENCES users(id),
     FOREIGN KEY (id_user_second) REFERENCES users(id),
-    UNIQUE (id_user_first, id_user_second)          
+    UNIQUE (id_user_first, id_user_second),
+    CHECK (id_user_first != id_user_second)          
 );
 
 CREATE TABLE chat_messages (

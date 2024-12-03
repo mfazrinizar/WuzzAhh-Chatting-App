@@ -45,4 +45,8 @@ public class FormController {
         }
         return userModel.login(username, password);
     }
+
+    public String getUserIdByUsername(String username) throws SQLException {
+        return userModel.getUserIdByUsername(username);
+    }
 }

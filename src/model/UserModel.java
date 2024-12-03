@@ -105,4 +105,36 @@ public class UserModel {
         }
         return null;
     }
+
+    // Get name by user ID
+    public String getNameById(String userId) throws SQLException {
+        String query = "SELECT name FROM users WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("name");
+                }
+            }
+        }
+        return null;
+    }
+
+    // Get name and username by user ID
+    public String[] getNameAndUsernameById(String userId) throws SQLException {
+        String query = "SELECT name, username FROM users WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new String[] { rs.getString("name"), rs.getString("username") };
+                }
+            }
+        }
+        return null;
+    }
 }
