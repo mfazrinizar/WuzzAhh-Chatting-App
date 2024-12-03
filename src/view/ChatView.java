@@ -7,7 +7,7 @@
 
 package view;
 
-import model.ChatMessageModel;
+import controller.ChatController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +23,7 @@ public class ChatView extends JFrame {
     private String friendUserId;
     private String friendUserName;
     private String friendName;
-    private ChatMessageModel chatMessageModel;
+    private ChatController chatController;
     private JPanel chatPanel;
     private Timer refreshTimer;
 
@@ -32,7 +32,7 @@ public class ChatView extends JFrame {
         this.friendUserId = friendUserId;
         this.friendUserName = friendUserName;
         this.friendName = friendName;
-        chatMessageModel = new ChatMessageModel();
+        chatController = new ChatController();
 
         setTitle("Chat with " + friendName);
         setSize(400, 600);
@@ -110,7 +110,7 @@ public class ChatView extends JFrame {
                 String message = messageArea.getText().trim();
                 if (!message.isEmpty()) {
                     try {
-                        if (chatMessageModel.sendMessage(userId, friendUserId, message)) {
+                        if (chatController.sendMessage(userId, friendUserId, message)) {
                             addMessageToChatPanel(userId, message, new SimpleDateFormat("HH:mm").format(new Date()));
                             messageArea.setText("");
                         } else {
@@ -128,7 +128,7 @@ public class ChatView extends JFrame {
 
     private void loadChatMessages() {
         try {
-            List<String[]> messages = chatMessageModel.getChatMessages(userId, friendUserId);
+            List<String[]> messages = chatController.getChatMessages(userId, friendUserId);
             chatPanel.removeAll(); // Clear existing messages
             for (String[] message : messages) {
                 addMessageToChatPanel(message[0], message[1], message[2]);

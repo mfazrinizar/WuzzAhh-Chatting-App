@@ -5,11 +5,9 @@
  * File Name    : DashboardView.java
  */
 
- package view;
+package view;
 
-import model.FriendModel;
-import model.ChatMessageModel;
-import model.UserModel;
+import controller.DashboardController;
 import utils.TimeParser;
 
 import javax.swing.*;
@@ -25,16 +23,12 @@ import java.util.List;
 public class DashboardView extends JFrame {
     private JPanel contactPanel;
     private ArrayList<String> contacts;
-    private FriendModel friendModel;
-    private ChatMessageModel chatMessageModel;
-    private UserModel userModel;
+    private DashboardController dashboardController;
     private String userId;
 
     public DashboardView(String userId) {
         this.userId = userId;
-        friendModel = new FriendModel();
-        chatMessageModel = new ChatMessageModel();
-        userModel = new UserModel();
+        dashboardController = new DashboardController();
 
         setTitle("WuzzAhh");
         setSize(450, 600);
@@ -158,10 +152,10 @@ public class DashboardView extends JFrame {
         String friendUsername = JOptionPane.showInputDialog(this, "Enter friend's username:");
         if (friendUsername != null && !friendUsername.trim().isEmpty()) {
             try {
-                String friendId = userModel.getUserIdByUsername(friendUsername);
+                String friendId = dashboardController.getUserIdByUsername(friendUsername);
                 if (friendId != null && !friendId.isEmpty() && !friendId.equals(userId)) {
-                    if (friendModel.addFriend(userId, friendId)) {
-                        String[] friendDetails = userModel.getNameAndUsernameById(friendId);
+                    if (dashboardController.addFriend(userId, friendId)) {
+                        String[] friendDetails = dashboardController.getNameAndUsernameById(friendId);
                         if (friendUsername != null) {
                             contacts.add(friendDetails[0] + " (" + friendDetails[1] + ")");
                         }
@@ -197,9 +191,9 @@ public class DashboardView extends JFrame {
                 int endIndex = contact.indexOf(")");
                 if (startIndex > 0 && endIndex > startIndex) {
                     String userName = contact.substring(startIndex, endIndex);
-                    String friendId = userModel.getUserIdByUsername(userName);
-                    String lastMessage = chatMessageModel.getLastMessage(userId, friendId);
-                    String[] friendDetails = userModel.getNameAndUsernameById(friendId);
+                    String friendId = dashboardController.getUserIdByUsername(userName);
+                    String lastMessage = dashboardController.getLastMessage(userId, friendId);
+                    String[] friendDetails = dashboardController.getNameAndUsernameById(friendId);
                     JPanel panel = createChatPanel(contact,
                             lastMessage != null ? TimeParser.parseMessage(lastMessage)
                                     : "No messages yet",
@@ -224,9 +218,9 @@ public class DashboardView extends JFrame {
 
     private void loadFriends() {
         try {
-            List<String> friendIds = friendModel.getFriendIds(userId);
+            List<String> friendIds = dashboardController.getFriendIds(userId);
             for (String friendId : friendIds) {
-                String[] friendUsername = userModel.getNameAndUsernameById(friendId);
+                String[] friendUsername = dashboardController.getNameAndUsernameById(friendId);
                 if (friendUsername != null) {
                     contacts.add(friendUsername[0] + " (" + friendUsername[1] + ")");
                 }
