@@ -5,7 +5,7 @@
  * File Name    : DashboardView.java
  */
 
-package view;
+ package view;
 
 import model.FriendModel;
 import model.ChatMessageModel;
