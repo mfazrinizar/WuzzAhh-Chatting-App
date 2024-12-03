@@ -128,6 +128,7 @@ public class LoginView extends JFrame {
                         DashboardView dashboardView = new DashboardView(userId);
                         dashboardView.setVisible(true);
                         dispose();
+                        
                     } else {
                         JOptionPane.showMessageDialog(null, "Invalid username or password.");
                     }

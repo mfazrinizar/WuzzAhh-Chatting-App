@@ -10,11 +10,14 @@ package view;
 import model.FriendModel;
 import model.ChatMessageModel;
 import model.UserModel;
+import utils.TimeParser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +102,8 @@ public class DashboardView extends JFrame {
         add(addFriendButton, BorderLayout.SOUTH);
     }
 
-    private JPanel createChatPanel(String name, String message, String time) {
+    private JPanel createChatPanel(String name, String message, String time, String friendUserId, String friendUserName,
+            String friendName) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 8, 3, 8),
@@ -138,6 +142,15 @@ public class DashboardView extends JFrame {
         panel.add(timeLabel, BorderLayout.EAST);
         panel.add(textPanel, BorderLayout.CENTER);
 
+        // Add mouse listener to navigate to ChatView
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new ChatView(userId, friendUserId, friendUserName, friendName);
+                dispose();
+            }
+        });
+
         return panel;
     }
 
@@ -148,8 +161,12 @@ public class DashboardView extends JFrame {
                 String friendId = userModel.getUserIdByUsername(friendUsername);
                 if (friendId != null && !friendId.isEmpty() && !friendId.equals(userId)) {
                     if (friendModel.addFriend(userId, friendId)) {
-                        contacts.add(friendUsername);
+                        String[] friendDetails = userModel.getNameAndUsernameById(friendId);
+                        if (friendUsername != null) {
+                            contacts.add(friendDetails[0] + " (" + friendDetails[1] + ")");
+                        }
                         updateContactList();
+                        JOptionPane.showMessageDialog(this, "Friend added successfully!");
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to add friend.");
                     }
@@ -167,20 +184,31 @@ public class DashboardView extends JFrame {
     private void updateContactList() {
         contactPanel.removeAll();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 0, 5, 0); // Add space between chats
+        gbc.insets = new Insets(5, 0, 5, 0);
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.NORTH; // Anchor to the top
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 1.0;
 
         for (String contact : contacts) {
             try {
-                String friendId = userModel.getUserIdByUsername(contact);
-                String lastMessage = chatMessageModel.getLastMessage(userId, friendId);
-                JPanel panel = createChatPanel(contact, lastMessage != null ? lastMessage : "No messages yet",
-                        "-:- PM");
-                contactPanel.add(panel, gbc);
+                int startIndex = contact.indexOf("(") + 1;
+                int endIndex = contact.indexOf(")");
+                if (startIndex > 0 && endIndex > startIndex) {
+                    String userName = contact.substring(startIndex, endIndex);
+                    String friendId = userModel.getUserIdByUsername(userName);
+                    String lastMessage = chatMessageModel.getLastMessage(userId, friendId);
+                    String[] friendDetails = userModel.getNameAndUsernameById(friendId);
+                    JPanel panel = createChatPanel(contact,
+                            lastMessage != null ? TimeParser.parseMessage(lastMessage)
+                                    : "No messages yet",
+                            lastMessage != null ? TimeParser.parseClockOnly(lastMessage) : "-:-", friendId,
+                            friendDetails[1], friendDetails[0]);
+                    contactPanel.add(panel, gbc);
+                } else {
+                    System.out.println("Invalid contact format: " + contact);
+                }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
             }
